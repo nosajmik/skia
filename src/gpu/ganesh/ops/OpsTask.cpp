@@ -647,6 +647,7 @@ bool OpsTask::onExecute(GrOpFlushState* flushState) {
     }
 
     renderPass->end();
+    fprintf(stderr, "OpsTask::onExecute ran commands on the GPU\n");
     flushState->gpu()->submit(renderPass);
     flushState->setOpsRenderPass(nullptr);
 

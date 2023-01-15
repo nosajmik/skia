@@ -363,6 +363,7 @@ SkBaseDevice::ClipType Device::onGetClipType() const {
 ///////////////////////////////////////////////////////////////////////////////
 
 void Device::drawPaint(const SkPaint& paint) {
+    fprintf(stderr, "Skia/Ganesh: Device::drawPaint\n");
     ASSERT_SINGLE_OWNER
     GR_CREATE_TRACE_MARKER_CONTEXT("skgpu::v1::Device", "drawPaint", fContext.get());
 

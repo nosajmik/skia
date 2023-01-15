@@ -298,6 +298,7 @@ private:
     }
 
     void onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) override {
+        fprintf(stderr, "FillRectOp::onExecute\n");
         if (!fVertexBuffer) {
             return;
         }

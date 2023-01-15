@@ -4100,6 +4100,7 @@ void GrGLGpu::willExecute() {
 }
 
 void GrGLGpu::submit(GrOpsRenderPass* renderPass) {
+    fprintf(stderr, "GrGLGpu::submit\n");
     // The GrGLOpsRenderPass doesn't buffer ops so there is nothing to do here
     SkASSERT(fCachedOpsRenderPass.get() == renderPass);
     fCachedOpsRenderPass->reset();

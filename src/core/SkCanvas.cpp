@@ -2010,6 +2010,7 @@ void SkCanvas::onDrawPaint(const SkPaint& paint) {
 }
 
 void SkCanvas::internalDrawPaint(const SkPaint& paint) {
+    fprintf(stderr, "SkCanvas::internalDrawPaint\n");
     // drawPaint does not call internalQuickReject() because computing its geometry is not free
     // (see getLocalClipBounds(), and the two conditions below are sufficient.
     if (paint.nothingToDraw() || this->isClipEmpty()) {

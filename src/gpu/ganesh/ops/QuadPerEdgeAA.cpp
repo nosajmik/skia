@@ -488,6 +488,7 @@ void IssueDraw(const GrCaps& caps, GrOpsRenderPass* renderPass, const VertexSpec
     if (spec.indexBufferOption() == IndexBufferOption::kTriStrips) {
         int offset = absVertBufferOffset +
                                     runningQuadCount * GrResourceProvider::NumVertsPerNonAAQuad();
+        fprintf(stderr, "QuadPerEdgeAA::IssueDraw renderPass->draw\n");
         renderPass->draw(4, offset);
         return;
     }
@@ -516,7 +517,7 @@ void IssueDraw(const GrCaps& caps, GrOpsRenderPass* renderPass, const VertexSpec
         // which, in GL, requires rebinding all vertex attrib arrays, so a base index is generally
         // preferred.
         int offset = absVertBufferOffset + runningQuadCount * numVertsPerQuad;
-
+        fprintf(stderr, "QuadPerEdgeAA::IssueDraw renderPass->drawIndexPattern\n");
         renderPass->drawIndexPattern(numIndicesPerQuad, quadsInDraw, maxNumQuads, numVertsPerQuad,
                                      offset);
     } else {
@@ -525,7 +526,7 @@ void IssueDraw(const GrCaps& caps, GrOpsRenderPass* renderPass, const VertexSpec
 
         int minVertex = runningQuadCount * numVertsPerQuad;
         int maxVertex = (runningQuadCount + quadsInDraw) * numVertsPerQuad - 1; // inclusive
-
+        fprintf(stderr, "QuadPerEdgeAA::IssueDraw renderPass->drawIndexed\n");
         renderPass->drawIndexed(numIndicesToDraw, baseIndex, minVertex, maxVertex,
                                 absVertBufferOffset);
     }

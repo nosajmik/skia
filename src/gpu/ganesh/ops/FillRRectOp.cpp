@@ -825,6 +825,7 @@ void FillRRectOpImpl::onCreateProgramInfo(const GrCaps* caps,
 }
 
 void FillRRectOpImpl::onExecute(GrOpFlushState* flushState, const SkRect& chainBounds) {
+    fprintf(stderr, "FillRRectOpImpl::onExecute\n");
     if (!fInstanceBuffer || !fIndexBuffer || !fVertexBuffer) {
         return;  // Setup failed.
     }

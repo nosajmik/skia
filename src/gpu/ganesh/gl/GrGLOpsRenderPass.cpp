@@ -185,6 +185,7 @@ void GrGLOpsRenderPass::onDraw(int vertexCount, int baseVertex) {
         this->bindVertexBuffer(fActiveVertexBuffer.get(), baseVertex);
         baseVertex = 0;
     }
+    fprintf(stderr, "GL_CALL DrawArrays\n");
     GL_CALL(DrawArrays(glPrimType, baseVertex, vertexCount));
     fGpu->didDrawTo(fRenderTarget);
 }
@@ -196,6 +197,7 @@ void GrGLOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t mi
         SkASSERT(fGpu->glCaps().drawInstancedSupport());
         SkASSERT(fDidBindVertexBuffer);
         if (baseVertex != 0) {
+            fprintf(stderr, "GL_CALL DrawElementsInstancedBaseVertexBaseInstance from GrGLOpsRenderPass::onDrawIndexed\n");
             GL_CALL(DrawElementsInstancedBaseVertexBaseInstance(
                     glPrimType, indexCount, GR_GL_UNSIGNED_SHORT,
                     this->offsetForBaseIndex(baseIndex), 1, baseVertex, 0));
@@ -206,9 +208,11 @@ void GrGLOpsRenderPass::onDrawIndexed(int indexCount, int baseIndex, uint16_t mi
     }
 
     if (fGpu->glCaps().drawRangeElementsSupport()) {
+        fprintf(stderr, "GL_CALL DrawRangeElements\n");
         GL_CALL(DrawRangeElements(glPrimType, minIndexValue, maxIndexValue, indexCount,
                                   GR_GL_UNSIGNED_SHORT, this->offsetForBaseIndex(baseIndex)));
     } else {
+        fprintf(stderr, "GL_CALL DrawElements\n");
         GL_CALL(DrawElements(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT,
                              this->offsetForBaseIndex(baseIndex)));
     }
@@ -230,10 +234,12 @@ void GrGLOpsRenderPass::onDrawInstanced(int instanceCount, int baseInstance, int
         int baseInstanceForDraw = baseInstance + i;
         if (fGpu->glCaps().baseVertexBaseInstanceSupport()) {
             SkASSERT(fDidBindInstanceBuffer);
+            fprintf(stderr, "GL_CALL DrawArraysInstancedBaseInstance\n");
             GL_CALL(DrawArraysInstancedBaseInstance(glPrimType, baseVertex, vertexCount,
                                                     instanceCountForDraw, baseInstanceForDraw));
         } else {
             this->bindInstanceBuffer(fActiveInstanceBuffer.get(), baseInstanceForDraw);
+            fprintf(stderr, "GL_CALL DrawArraysInstanced\n");
             GL_CALL(DrawArraysInstanced(glPrimType, baseVertex, vertexCount, instanceCountForDraw));
         }
     }
@@ -250,6 +256,7 @@ void GrGLOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, in
         if (fGpu->glCaps().baseVertexBaseInstanceSupport()) {
             SkASSERT(fDidBindInstanceBuffer);
             SkASSERT(fDidBindVertexBuffer);
+            fprintf(stderr, "GL_CALL DrawElementsInstancedBaseVertexBaseInstance from GrGLOpsRenderPass::onDrawIndexedInstanced\n");
             GL_CALL(DrawElementsInstancedBaseVertexBaseInstance(
                     glPrimType, indexCount, GR_GL_UNSIGNED_SHORT,
                     this->offsetForBaseIndex(baseIndex), instanceCountForDraw, baseVertex,
@@ -257,6 +264,7 @@ void GrGLOpsRenderPass::onDrawIndexedInstanced(int indexCount, int baseIndex, in
         } else {
             this->bindInstanceBuffer(fActiveInstanceBuffer.get(), baseInstanceForDraw);
             this->bindVertexBuffer(fActiveVertexBuffer.get(), baseVertex);
+            fprintf(stderr, "GL_CALL DrawElementsInstanced\n");
             GL_CALL(DrawElementsInstanced(glPrimType, indexCount, GR_GL_UNSIGNED_SHORT,
                                         this->offsetForBaseIndex(baseIndex), instanceCountForDraw));
         }
@@ -296,6 +304,7 @@ void GrGLOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_
 
     if (drawCount > 1 && fGpu->glCaps().multiDrawType() == MultiDrawType::kMultiDrawIndirect) {
         GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
+        fprintf(stderr, "GL_CALL MultiDrawArraysIndirect\n");
         GL_CALL(MultiDrawArraysIndirect(glPrimType,
                                         buffer_offset_to_gl_address(drawIndirectBuffer, offset),
                                         drawCount, sizeof(GrDrawIndirectCommand)));
@@ -304,6 +313,7 @@ void GrGLOpsRenderPass::onDrawIndirect(const GrBuffer* drawIndirectBuffer, size_
 
     for (int i = 0; i < drawCount; ++i) {
         GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
+        fprintf(stderr, "GL_CALL DrawArraysIndirect\n");
         GL_CALL(DrawArraysIndirect(glPrimType,
                                    buffer_offset_to_gl_address(drawIndirectBuffer, offset)));
         offset += sizeof(GrDrawIndirectCommand);
@@ -336,9 +346,11 @@ void GrGLOpsRenderPass::multiDrawArraysANGLEOrWebGL(const GrBuffer* drawIndirect
             fBaseInstances[i] = baseInstance;
         }
         if (countInBatch == 1) {
+            fprintf(stderr, "GL_CALL DrawArraysInstancedBaseInstance\n");
             GL_CALL(DrawArraysInstancedBaseInstance(glPrimType, fFirsts[0], fCounts[0],
                                                     fInstanceCounts[0], fBaseInstances[0]));
         } else {
+            fprintf(stderr, "GL_CALL MultiDrawArraysInstancedBaseInstance\n");
             GL_CALL(MultiDrawArraysInstancedBaseInstance(glPrimType, fFirsts, fCounts,
                                                          fInstanceCounts, fBaseInstances,
                                                          countInBatch));
@@ -370,6 +382,7 @@ void GrGLOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer
 
     if (drawCount > 1 && fGpu->glCaps().multiDrawType() == MultiDrawType::kMultiDrawIndirect) {
         GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
+        fprintf(stderr, "GL_CALL MultiDrawElementsIndirect\n");
         GL_CALL(MultiDrawElementsIndirect(glPrimType, GR_GL_UNSIGNED_SHORT,
                                           buffer_offset_to_gl_address(drawIndirectBuffer, offset),
                                           drawCount, sizeof(GrDrawIndexedIndirectCommand)));
@@ -378,6 +391,7 @@ void GrGLOpsRenderPass::onDrawIndexedIndirect(const GrBuffer* drawIndirectBuffer
 
     for (int i = 0; i < drawCount; ++i) {
         GrGLenum glPrimType = fGpu->prepareToDraw(fPrimitiveType);
+        fprintf(stderr, "GL_CALL DrawElementsIndirect\n");
         GL_CALL(DrawElementsIndirect(glPrimType, GR_GL_UNSIGNED_SHORT,
                                      buffer_offset_to_gl_address(drawIndirectBuffer, offset)));
         offset += sizeof(GrDrawIndexedIndirectCommand);
@@ -412,12 +426,14 @@ void GrGLOpsRenderPass::multiDrawElementsANGLEOrWebGL(const GrBuffer* drawIndire
             fBaseInstances[i] = baseInstance;
         }
         if (countInBatch == 1) {
+            fprintf(stderr, "GL_CALL DrawElementsInstancedBaseVertexBaseInstance from GrGLOpsRenderPass::multiDrawElementsANGLEOrWebGL\n");
             GL_CALL(DrawElementsInstancedBaseVertexBaseInstance(glPrimType, fCounts[0],
                                                                 GR_GL_UNSIGNED_SHORT, fIndices[0],
                                                                 fInstanceCounts[0],
                                                                 fBaseVertices[0],
                                                                 fBaseInstances[0]));
         } else {
+            fprintf(stderr, "GL_CALL MultiDrawElementsInstancedBaseVertexBaseInstance\n");
             GL_CALL(MultiDrawElementsInstancedBaseVertexBaseInstance(glPrimType, fCounts,
                                                                      GR_GL_UNSIGNED_SHORT, fIndices,
                                                                      fInstanceCounts, fBaseVertices,

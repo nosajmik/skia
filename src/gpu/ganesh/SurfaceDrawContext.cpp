@@ -358,6 +358,7 @@ void SurfaceDrawContext::drawPaint(const GrClip* clip,
     if (!paint.numTotalFragmentProcessors()) {
         // The paint is trivial so we won't need to use local coordinates, so skip calculating the
         // inverse view matrix.
+        fprintf(stderr, "SurfaceDrawContext::drawPaint called fillRectToRect\n");
         SkRect r = this->asSurfaceProxy()->getBoundsRect();
         this->fillRectToRect(clip, std::move(paint), GrAA::kNo, SkMatrix::I(), r, r);
     } else {
@@ -366,6 +367,7 @@ void SurfaceDrawContext::drawPaint(const GrClip* clip,
         if (!viewMatrix.invert(&localMatrix)) {
             return;
         }
+        fprintf(stderr, "SurfaceDrawContext::drawPaint called fillPixelsWithLocalMatrix\n");
         SkIRect bounds = SkIRect::MakeSize(this->asSurfaceProxy()->dimensions());
         this->fillPixelsWithLocalMatrix(clip, std::move(paint), bounds, localMatrix);
     }
@@ -557,6 +559,7 @@ void SurfaceDrawContext::drawFilledQuad(const GrClip* clip,
         } else {
             aaType = this->chooseAAType(aa);
         }
+        fprintf(stderr, "SurfaceDrawContext::drawFilledQuad calling addDrawOp\n");
         this->addDrawOp(finalClip, FillRectOp::Make(fContext, std::move(paint), aaType,
                                                     quad, ss));
     }
@@ -718,6 +721,7 @@ void SurfaceDrawContext::fillRectToRect(const GrClip* clip,
         aa == GrAA::kYes) {  // If aa is kNo when using dmsaa, the rect is axis aligned. Don't use
                              // FillRRectOp because it might require dual source blending.
                              // http://skbug.com/11756
+        fprintf(stderr, "SurfaceDrawContext::fillRectToRect calling attemptQuadOptimization\n");
         QuadOptimization opt = this->attemptQuadOptimization(clip, nullptr/*stencil*/, &quad,
                                                              &paint);
         if (opt < QuadOptimization::kClipApplied) {
@@ -755,6 +759,7 @@ void SurfaceDrawContext::fillRectToRect(const GrClip* clip,
         }
     }
 
+    fprintf(stderr, "SurfaceDrawContext::fillRectToRect calling drawFilledQuad\n");
     assert_alive(paint);
     this->drawFilledQuad(clip, std::move(paint), &quad);
 }
@@ -1999,6 +2004,7 @@ void SurfaceDrawContext::addDrawOp(const GrClip* clip,
     }
 #endif
 
+    fprintf(stderr, "SurfaceDrawContext::addDrawOp calling OpsTask::addDrawOp\n");
     opsTask->addDrawOp(this->drawingManager(), std::move(op), drawNeedsMSAA, analysis,
                        std::move(appliedClip), dstProxyView,
                        GrTextureResolveManager(this->drawingManager()), *this->caps());
